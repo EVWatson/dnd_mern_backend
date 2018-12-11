@@ -1,4 +1,5 @@
 const express = require('express');
+const Joi = require('joi');
 
 const app = new express();
 const port = process.env.PORT || 5000;
@@ -9,72 +10,73 @@ const classes = [
   index: 1,
   name: "Barbarian",
   hit_die: 12,
-  proficiency_choices: [
-    {
-          from: [
-            {
-                name: "Skill: Animal Handling",
-                url: "http://www.dnd5eapi.co/api/proficiencies/106"
-            },
-            {
-                name: "Skill: Athletics",
-                url: "http://www.dnd5eapi.co/api/proficiencies/108"
-            },
-            {
-                name: "Skill: Intimidation",
-                url: "http://www.dnd5eapi.co/api/proficiencies/112"
-            },
-            {
-                name: "Skill: Nature",
-                url: "http://www.dnd5eapi.co/api/proficiencies/115"
-            },
-            {
-                name: "Skill: Perception",
-                url: "http://www.dnd5eapi.co/api/proficiencies/116"
-            },
-            {
-                name: "Skill: Survival",
-                url: "http://www.dnd5eapi.co/api/proficiencies/122"
-            }
-        ],
-        type: "proficiencies",
-        choose: 2
-    }
-  ],
   proficiencies: [
       {
-          url: "http://www.dnd5eapi.co/api/proficiencies/1",
-          name: "Light armor"
+       name: "Light armor"
       },
       {
-          url: "http://www.dnd5eapi.co/api/proficiencies/2",
-          name: "Medium armor"
+       name: "Medium armor"
       },
       {
-          url: "http://www.dnd5eapi.co/api/proficiencies/18",
-          name: "Shields"
+       name: "Shields"
       },
       {
-          url: "http://www.dnd5eapi.co/api/proficiencies/19",
-          name: "Simple weapons"
+       name: "Simple weapons"
       },
       {
-          url: "http://www.dnd5eapi.co/api/proficiencies/20",
-          name: "Martial weapons"
+      name: "Martial weapons"
       }
   ],
   saving_throws: [
       {
-          url: "http://www.dnd5eapi.co/api/ability-scores/1",
           name: "STR"
       },
       {
-          "url": "http://www.dnd5eapi.co/api/ability-scores/3",
-          "name": "CON"
+          name: "CON"
       }
     ]
+},
+
+
+  {
+    id: 2,
+    index: 2,
+    name: "Bard",
+    hit_die: 8,
+    proficiencies: [
+        {
+            name: "Light armor"
+        },
+        {
+
+            name: "Simple weapons"
+        },
+        {
+            name: "Longswords"
+        },
+        {
+            name: "Rapiers"
+        },
+        {
+            name: "Shortswords"
+        },
+        {
+          name: "Crossbows, hand"
+        }
+    ],
+    saving_throws: [
+        {
+            name: "DEX"
+        },
+        {
+            name: "CHA"
+        }
+      ]
   }
 ]
+
+
+app.use(express.json());
 
 
 app.get('/', (req, res) => {
@@ -88,8 +90,40 @@ app.get('/classes', (req, res) => {
 app.get('/classes/:id', (req, res) => {
   const { id } = req.params;
   const character = classes.find(c => c.id === parseInt(id));
+  if (!character) {
+    return res.status(404).send('Character lost in dungeon');
+  }
   return res.send(character);
 });
+
+app.post('/classes', (req, res) => {
+const {id, index, name, hit_die, proficiencies, saving_throws} = req.body;
+const character = {
+   id,
+   name,
+   index,
+   hit_die,
+   proficiencies
+ };
+const schema = {
+  id: Joi.number().required(),
+  index: Joi.number().required(),
+  name: Joi.string().min(3).required(),
+  hit_die: Joi.number().required(),
+  proficiencies: Joi.array().items({
+    name: Joi.string().min(3).required()
+  }),
+  saving_throws: Joi.array().items({
+    name: Joi.string().min(3).required()
+  })
+}
+const valid = Joi.validate(character, schema);
+if (!valid) {
+  return res.status(400).send(valid)
+}
+classes.push(character);
+return res.send(character);
+})
 
 app.listen(port, () => {
   console.log(`listening at http://localhost:${port}`);

@@ -10,5 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^1.18.8"
+  },
+  "dependencies": {
+    "joi": "^14.3.0"
   }
 }
