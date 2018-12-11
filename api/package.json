@@ -1,0 +1,14 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "An API to serve DnD requests",
+  "main": "api.js",
+  "scripts": {
+    "start": "nodemon api.js"
+  },
+  "author": "Alex Taylor and Emily Watson",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.8"
+  }
+}
