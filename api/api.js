@@ -103,7 +103,8 @@ const character = {
    name,
    index,
    hit_die,
-   proficiencies
+   proficiencies,
+   saving_throws
  };
 const schema = {
   id: Joi.number().required(),
@@ -112,14 +113,15 @@ const schema = {
   hit_die: Joi.number().required(),
   proficiencies: Joi.array().items({
     name: Joi.string().min(3).required()
-  }),
+  }).min(1).required(),
   saving_throws: Joi.array().items({
     name: Joi.string().min(3).required()
-  })
+  }).min(1).required()
 }
 const valid = Joi.validate(character, schema);
-if (!valid) {
-  return res.status(400).send(valid)
+if (valid.error) {
+  const message = valid.error.details[0].message;
+  return res.status(400).send(message)
 }
 classes.push(character);
 return res.send(character);
